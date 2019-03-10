@@ -63,31 +63,43 @@ type Repo struct {
 }
 
 func userHandler(w http.ResponseWriter, r *http.Request) {
-	response, err := http.Get("https://api.github.com/users/jackfletch/repos")
-	if err != nil {
-		fmt.Fprintf(w, "The HTTP request failed with error %s\n", err)
-		fmt.Fprintf(os.Stderr, "ERROR: %s\n", err)
-		os.Exit(1)
-	}
+	// fetch user repositories
+	response := getGithubUserRepos(w, "jackfletch")
 	data, _ := ioutil.ReadAll(response.Body)
+
+	// unmarshall bytes to json object
 	var repos []Repo
-	err = json.Unmarshal(data, &repos)
+	err := json.Unmarshal(data, &repos)
 	if err != nil {
 		fmt.Println("error:", err)
 	}
 
-	for i := 0; i < len(repos); i++ {
-		// fmt.Printf("result struct: %+v\n", repos)
-		if repos[i].Fork {
-			repos = append(repos[:i], repos[i+1:]...)
-			i--
-			continue
+	// remove forked repositories
+	i := 0
+	for _, repo := range repos {
+		if !repo.Fork {
+			repos[i] = repo
+			i++
 		}
 	}
+	repos = repos[:i]
+
+	// marshall json object to bytes
 	json, err := json.MarshalIndent(&repos, "", "  ")
 	if err != nil {
 		log.Fatal(err)
 	}
 
+	// output json
 	fmt.Fprintln(w, string(json))
+}
+
+func getGithubUserRepos(w http.ResponseWriter, username string) (response *http.Response) {
+	response, err := http.Get("https://api.github.com/users/" + username + "/repos")
+	if err != nil {
+		fmt.Fprintf(w, "The HTTP request failed with error %s\n", err)
+		fmt.Fprintf(os.Stderr, "ERROR: %s\n", err)
+		os.Exit(1)
+	}
+	return response
 }
