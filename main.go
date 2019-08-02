@@ -24,7 +24,12 @@ func main() {
 	r.HandleFunc("/", handler)
 	r.HandleFunc("/user/{username}", userHandler)
 
-	err := http.ListenAndServe(":8080", r)
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = "8080"
+	}
+
+	err := http.ListenAndServe(fmt.Sprintf(":%s", port), r)
 	if err != nil {
 		log.Fatal(err)
 	}
