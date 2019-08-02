@@ -8,12 +8,18 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"regexp"
+	"sort"
+
+	"github.com/gorilla/mux"
 )
 
 func main() {
-	http.HandleFunc("/", handler)
-	http.HandleFunc("/user", userHandler)
-	err := http.ListenAndServe(":8080", nil)
+	r := mux.NewRouter()
+	r.HandleFunc("/", handler)
+	// r.HandleFunc("/user/{username:(?i)^[[a-z\\d]+-]*[a-z\\d]+$}", userHandler)
+	r.HandleFunc("/user/{username}", userHandler)
+	err := http.ListenAndServe(":8080", r)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -62,9 +68,18 @@ type Repo struct {
 	UpdatedAt       string `json:"updated_at"`
 }
 
+var reGithubUsername = regexp.MustCompile("(?i)^([a-z\\d]+-)*[a-z\\d]+$")
+
 func userHandler(w http.ResponseWriter, r *http.Request) {
 	// fetch user repositories
-	response := getGithubUserRepos(w, "jackfletch")
+	vars := mux.Vars(r)
+	match := reGithubUsername.MatchString(vars["username"])
+	if !match {
+		fmt.Fprintf(w, "Invalid Github username: %s\n", vars["username"])
+		fmt.Fprintf(os.Stderr, "ERROR: invalid github username: %s\n", vars["username"])
+		return
+	}
+	response := getGithubUserRepos(w, vars["username"])
 	data, _ := ioutil.ReadAll(response.Body)
 
 	// unmarshall bytes to json object
@@ -83,6 +98,9 @@ func userHandler(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 	repos = repos[:i]
+	sort.Slice(repos, func(i, j int) bool {
+		return repos[i].StargazersCount > repos[j].StargazersCount
+	})
 
 	// marshall json object to bytes
 	json, err := json.MarshalIndent(&repos, "", "  ")
