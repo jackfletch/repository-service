@@ -3,8 +3,8 @@ A microservice for fetching a user's GitHub repositories and returning the usefu
 Undocumented useful commands:
 
 ```sh
-docker build -t gitreposervice .
-docker run --publish 6060:8080 --name gitRepoService --rm gitreposervice
+docker build -t git-repos .
+docker run --publish 6060:8080 --name gitRepoService --rm git-repos
 errcheck
 go run main.go
 godoc -http=localhost:6060
