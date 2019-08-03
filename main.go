@@ -11,14 +11,25 @@ import (
 	"regexp"
 	"sort"
 
+	"github.com/gomodule/redigo/redis"
 	"github.com/google/go-github/github"
 	"github.com/gorilla/mux"
+	"github.com/gregjones/httpcache"
+	rediscache "github.com/gregjones/httpcache/redis"
 )
 
 var client *github.Client
 
 func main() {
-	client = github.NewClient(nil)
+	conn, err := redis.Dial("tcp", os.Getenv("REDIS_URL"))
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer conn.Close()
+
+	cache := rediscache.NewWithClient(conn)
+	transport := httpcache.NewTransport(cache)
+	client = github.NewClient(transport.Client())
 
 	r := mux.NewRouter()
 	r.HandleFunc("/", handler)
@@ -29,7 +40,7 @@ func main() {
 		port = "8080"
 	}
 
-	err := http.ListenAndServe(fmt.Sprintf(":%s", port), r)
+	err = http.ListenAndServe(fmt.Sprintf(":%s", port), r)
 	if err != nil {
 		log.Fatal(err)
 	}

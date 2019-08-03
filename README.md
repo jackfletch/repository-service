@@ -3,12 +3,13 @@ A microservice for fetching a user's GitHub repositories and returning the usefu
 Undocumented useful commands:
 
 ```sh
-docker build -t git-repos .
+REDIS_URL=localhost:6379 go run main.go
+
 docker run --publish 6060:8080 --name gitRepoService --rm git-repos
+
 errcheck
-go run main.go
 godoc -http=localhost:6060
-curl -s localhost:8080/user
+curl -s localhost:8080/user/jackfletch
 ```
 
 ```ps1
