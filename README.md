@@ -5,7 +5,7 @@ Undocumented useful commands:
 ```sh
 REDIS_URL=localhost:6379 go run main.go
 
-docker run --publish 6060:8080 --name gitRepoService --rm git-repos
+docker run --publish 8080:8080 --name gitRepoService --rm git-repos
 
 errcheck
 godoc -http=localhost:6060
