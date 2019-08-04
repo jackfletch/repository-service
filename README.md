@@ -1,4 +1,4 @@
-A microservice for fetching a user's GitHub repositories and returning the useful information from the GitHub API.
+A service for fetching a GitHub user's repositories and returning the useful information from the GitHub API.
 
 Undocumented useful commands:
 
@@ -9,7 +9,7 @@ docker build -t git-repos .
 docker tag jackfletch/git-repos gcr.io/jackfletch/git-repos:v0.0.2
 docker push gcr.io/jackfletch/git-repos:v0.0.2
 
-docker run --publish 8080:8080 --name gitRepoService --rm git-repos
+docker run --publish 8080:8080 --name repository-service --rm git-repos
 
 errcheck
 godoc -http=localhost:6060

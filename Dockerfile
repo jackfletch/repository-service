@@ -4,8 +4,8 @@ LABEL Author="Jack Fletcher"
 # install git, which is required for fetching the dependencies.
 RUN apk update && apk add --no-cache git ca-certificates && update-ca-certificates
 
-RUN mkdir -p /go/src/github.com/jackfletch/gitRepoService/
-WORKDIR /go/src/github.com/jackfletch/gitRepoService/
+RUN mkdir -p /go/src/github.com/jackfletch/repository-service/
+WORKDIR /go/src/github.com/jackfletch/repository-service/
 COPY . .
 
 # fetch dependencies but do not install them [-d]

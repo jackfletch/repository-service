@@ -1,4 +1,4 @@
-// fetch github user repos
+// fetch GitHub user's repositories
 package main
 
 import (
@@ -58,8 +58,8 @@ func userHandler(w http.ResponseWriter, r *http.Request) {
 	username := vars["username"]
 	match := reGithubUsername.MatchString(username)
 	if !match {
-		fmt.Fprintf(w, "Invalid Github username: %s\n", username)
-		fmt.Fprintf(os.Stderr, "ERROR: invalid github username: %s\n", username)
+		fmt.Fprintf(w, "Invalid GitHub username: %s\n", username)
+		fmt.Fprintf(os.Stderr, "ERROR: invalid GitHub username: %s\n", username)
 		return
 	}
 
